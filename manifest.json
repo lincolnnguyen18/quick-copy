@@ -6,7 +6,7 @@
     "commands": {
         "bark": {
             "suggested_key": {
-                "default": "Alt+Shift+X"
+                "default": "Alt+Shift+3"
             },
             "description": "Copy text in select divs to clipboard"
         }
