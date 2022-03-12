@@ -3,10 +3,10 @@ let barkActive = false;
 chrome.commands.onCommand.addListener(function (command) {
     switch (command) {
         case 'bark':
-            if (!barkActive) {
+            // if (!barkActive) {
                 barkTitle();
                 barkActive = true;
-            }
+            // }
             break;
         default:
             console.log(`Command ${command} not found`);
