@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log(text);
         // copy text to clipboard
         navigator.clipboard.writeText(text).then(() => {
-            alert("Text copied!");
+            // alert("Text copied!");
         });
     });
     
