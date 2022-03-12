@@ -1,54 +1,80 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    let oldBackground;
+let oldBackground, currentEl;
+
+function getVisibleText(element) {
+    window.getSelection().removeAllRanges();
+    
+    let range = document.createRange();
+    range.selectNode(element);
+    window.getSelection().addRange(range);
+    
+    let visibleText = window.getSelection().toString().trim();
+    window.getSelection().removeAllRanges();
+    
+    return visibleText;
+}
+
+const reformatText = (text) => {
+    // replace all 1 or more newlines with 1 newline
+    text = text.replace(/\n{2,}/g, '\n');
+    // remove all leading and trailing whitespace from each line
+    let newtext = ""
+    text.split('\n').forEach((line) => {
+        newtext += line.trim() + '\n';
+    });
+    return newtext
+}
+
+const mouseoverEvent = (e) => {
+    let element = e.target;
+    currentEl = element;
+    oldBackground = element.style.backgroundColor;
+    element.style.backgroundColor = 'blue';
+}
+
+const mouseoutEvent = (e) => {
+    let element = e.target;
+    element.style.backgroundColor = oldBackground;
+    currentEl = null;
+}
+
+const clickEvent = (e) => {
+    let element = e.target;
+    let text = getVisibleText(element);
+    text = reformatText(text);
+    console.log(text);
+    // copy text to clipboard
+    navigator.clipboard.writeText(text).then(() => {
+        // alert("Text copied!");
+        // make background color of element gray for a second
+        element.style.backgroundColor = 'gray';
+        setTimeout(() => {
+            element.style.backgroundColor = oldBackground;
+        }, 1000);
+    });
+}
+
+function listenerFunction(request, sender, sendResponse) {
+    console.log(request);
+    if (!request.barkActive) {
+        // chrome.runtime.onMessage.removeListener(listenerFunction);
+        window.removeEventListener('mouseover', mouseoverEvent);
+        window.removeEventListener('mouseout', mouseoutEvent);
+        window.removeEventListener('click', clickEvent);
+        if (currentEl) {
+            currentEl.style.backgroundColor = oldBackground;
+        }
+        return;
+    }
 
     // print element cursor is over; add event listener to window
-    window.addEventListener('mouseover', (e) => {
-        let element = e.target;
-        oldBackground = element.style.backgroundColor;
-        element.style.backgroundColor = 'blue';
-    });
+    window.addEventListener('mouseover', mouseoverEvent);
 
     // remove border when not hovering over element
-    window.addEventListener('mouseout', (e) => {
-        let element = e.target;
-        element.style.backgroundColor = oldBackground;
-    });
-
-    function getVisibleText(element) {
-        window.getSelection().removeAllRanges();
-        
-        let range = document.createRange();
-        range.selectNode(element);
-        window.getSelection().addRange(range);
-        
-        let visibleText = window.getSelection().toString().trim();
-        window.getSelection().removeAllRanges();
-        
-        return visibleText;
-    }
-
-    const reformatText = (text) => {
-        // replace all 1 or more newlines with 1 newline
-        text = text.replace(/\n{2,}/g, '\n');
-        // remove all leading and trailing whitespace from each line
-        let newtext = ""
-        text.split('\n').forEach((line) => {
-            newtext += line.trim() + '\n';
-        });
-        return newtext
-    }
+    window.addEventListener('mouseout', mouseoutEvent);
 
     // log element on click
-    window.addEventListener('click', (e) => {
-        let element = e.target;
-        let text = getVisibleText(element);
-        text = reformatText(text);
-        console.log(text);
-        // copy text to clipboard
-        navigator.clipboard.writeText(text).then(() => {
-            // alert("Text copied!");
-        });
-    });
+    window.addEventListener('click', clickEvent);
     
     return true;
-});
+}
+chrome.runtime.onMessage.addListener(listenerFunction);
