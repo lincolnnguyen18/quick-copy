@@ -37,6 +37,26 @@ const mouseoutEvent = (e) => {
     currentEl = null;
 }
 
+const deactivate = () => {
+    window.removeEventListener('mouseover', mouseoverEvent);
+    window.removeEventListener('mouseout', mouseoutEvent);
+    window.removeEventListener('click', clickEvent);
+    if (currentEl) {
+        currentEl.style.backgroundColor = oldBackground;
+    }
+    // get all links on page
+    let links_a = document.getElementsByTagName('a');
+    // get all elements with style cursor = pointer
+    let links_b = document.querySelectorAll('[style*="cursor: pointer"]');
+    // concatenate both arrays
+    let links = [...links_a, ...links_b];
+    // reenable all links
+    for (let i = 0; i < links.length; i++) {
+        links[i].style.pointerEvents = 'auto';
+        // links[i].removeEventListener('click', preventDefault);
+    }
+}
+
 const clickEvent = (e) => {
     let element = e.target;
     let text = getVisibleText(element);
@@ -50,6 +70,7 @@ const clickEvent = (e) => {
         setTimeout(() => {
             element.style.backgroundColor = oldBackground;
         }, 1000);
+        // deactivate();
     });
 }
 
@@ -61,23 +82,7 @@ function listenerFunction(request, sender, sendResponse) {
     console.log(request);
     if (!request.barkActive) {
         // chrome.runtime.onMessage.removeListener(listenerFunction);
-        window.removeEventListener('mouseover', mouseoverEvent);
-        window.removeEventListener('mouseout', mouseoutEvent);
-        window.removeEventListener('click', clickEvent);
-        if (currentEl) {
-            currentEl.style.backgroundColor = oldBackground;
-        }
-        // get all links on page
-        let links_a = document.getElementsByTagName('a');
-        // get all elements with style cursor = pointer
-        let links_b = document.querySelectorAll('[style*="cursor: pointer"]');
-        // concatenate both arrays
-        let links = [...links_a, ...links_b];
-        // reenable all links
-        for (let i = 0; i < links.length; i++) {
-            links[i].style.pointerEvents = 'auto';
-            // links[i].removeEventListener('click', preventDefault);
-        }
+        deactivate();
         return;
     }
 
