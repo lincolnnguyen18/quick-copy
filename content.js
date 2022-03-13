@@ -53,6 +53,10 @@ const clickEvent = (e) => {
     });
 }
 
+const preventDefault = (e) => {
+    e.preventDefault();
+}
+
 function listenerFunction(request, sender, sendResponse) {
     console.log(request);
     if (!request.barkActive) {
@@ -63,7 +67,31 @@ function listenerFunction(request, sender, sendResponse) {
         if (currentEl) {
             currentEl.style.backgroundColor = oldBackground;
         }
+        // get all links on page
+        let links_a = document.getElementsByTagName('a');
+        // get all elements with style cursor = pointer
+        let links_b = document.querySelectorAll('[style*="cursor: pointer"]');
+        // concatenate both arrays
+        let links = [...links_a, ...links_b];
+        // reenable all links
+        for (let i = 0; i < links.length; i++) {
+            links[i].style.pointerEvents = 'auto';
+            // links[i].removeEventListener('click', preventDefault);
+        }
         return;
+    }
+
+    // disable all links
+    // get all links on page
+    let links_a = document.getElementsByTagName('a');
+    // get all elements with style cursor = pointer
+    let links_b = document.querySelectorAll('[style*="cursor: pointer"]');
+    // concatenate both arrays
+    let links = [...links_a, ...links_b];
+    for (let i = 0; i < links.length; i++) {
+        links[i].style.pointerEvents = 'none';
+        // prevent onclick default
+        // links[i].addEventListener('click', preventDefault);
     }
 
     // print element cursor is over; add event listener to window
